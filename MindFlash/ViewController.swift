@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var resetButton: UIButton!
     
     var questionArray = [Question]()
+    var askedQuestions = [Question]()
     var colors = [#colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1), #colorLiteral(red: 0.9098039269, green: 0.4784313738, blue: 0.6431372762, alpha: 1), #colorLiteral(red: 0.9764705896, green: 0.850980401, blue: 0.5490196347, alpha: 1), #colorLiteral(red: 0.5568627715, green: 0.3529411852, blue: 0.9686274529, alpha: 1)]
     
     var score = 0
@@ -33,20 +34,28 @@ class ViewController: UIViewController {
         resetButton.clipsToBounds = true
         loadQuestions()
         generateQuestionText()
+        
     }
-        // Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view, typically from a nib.
     
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     func loadQuestions(){
         let question1 = Question (questionText: "What day starts with the letter W?", answers: ["Monday", "Tuesday", "Wednesday", "Thursday"], correctAnswer: 2)
-      let question2 = Question (questionText: "What candy is fruity?", answers: ["Milky Way", "Hershey Bar", "Skittles", "Hot Cheetos"], correctAnswer: 3)
+        let question2 = Question (questionText: "What candy is fruity?", answers: ["Milky Way", "Hershey Bar", "Skittles", "Hot Cheetos"], correctAnswer: 2)
+        let question3 = Question (questionText: "What number comes after Five?", answers: ["Five", "Seven", "Four", "Six"],
+                                  correctAnswer: 3)
+        let question4 = Question (questionText: "How many letters do the word letters have in it?", answers: ["Seven", "Eight", "Six", "Five"], correctAnswer: 0)
         
         
         questionArray.append(question1)
+        questionArray.append(question2)
+        questionArray.append(question3)
+        questionArray.append(question4)
+        
     }
     func generateAnswerButtons(question: Question, colorSelection: [UIColor]) {
         var colorArray = colorSelection
@@ -83,25 +92,62 @@ class ViewController: UIViewController {
         }
     }
     func generateQuestionText() {
-        let randomQuestionIndex = Int(arc4random_uniform(UInt32(questionArray.count)))
-        var currentQuestion = questionArray[randomQuestionIndex]
+        scoreLabel.text = "Score: \(score)"
+        let randomQuestionIndex =  Int(arc4random_uniform(UInt32(questionArray.count)))
+        let currentQuestion = questionArray[randomQuestionIndex]
+        askedQuestions.append(currentQuestion)
         questionLabel.text = currentQuestion.questionText
         displayedQuestion = currentQuestion
+        questionArray.remove(at:randomQuestionIndex)
         generateAnswerButtons(question: currentQuestion, colorSelection: colors)
         
-        
     }
-
+    
+    func gameOver() {
+        let alertView = UIAlertController(title: "Game Over", message: "Your score was \(score)", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Play Again!", style: .default, handler: { action in
+            self.questionArray = self.askedQuestions
+                self.askedQuestions = []
+           })
+        alertView.addAction(okAction)
+        
+        self.present(alertView, animated: true, completion: nil)
+        score = 0
+    }
+    
     @IBAction func resetButtonTapped(_ sender: Any) {
     }
+    
     @IBAction func answerButtonTapped(_ sender: Any) {
         let button = sender as! UIButton
-        print(button.tag)
-        if button.titleLabel?.text == displayedQuestion?.answers[(displayedQuestion?.correctAnswer)!] {
-            let alertView = UIAlertController(title: "Correct!" , message: "You got the answer right, good job!" , preferredStyle: .alert)
-            alertView.addAction(UIAlertAction(title: "Okay!", style: .default))
+        if button.title(for: .normal) == displayedQuestion!.answers[(displayedQuestion!.correctAnswer)] {
+            let alertView = UIAlertController(title: "Correct!", message: "You got the answer right, good job!", preferredStyle: .alert)
+            score += 1
+            let okAction = UIAlertAction(title: "Okay!", style: .default, handler: { action in
+                if self.questionArray.count != 0 {
+                self.generateQuestionText()
+                }else {
+                    self.gameOver()
+                }
+            })
+            alertView.addAction(okAction)
+            
             self.present(alertView, animated: true, completion: nil)
+        
+        } else {
+            let alertView = UIAlertController(title: "Wrong!", message: "You got the answer wrong!", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Okay!", style: .default, handler: { action in
+                if self.questionArray.count != 0 {
+                    self.generateQuestionText()
+                }else {
+                    self.gameOver()
+                }
+            })
+            alertView.addAction(okAction)
+            
+            self.present(alertView, animated: true, completion: nil)
+        
         }
     
-}
+    }
 }
