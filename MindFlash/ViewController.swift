@@ -116,6 +116,19 @@ class ViewController: UIViewController {
     }
     
     @IBAction func resetButtonTapped(_ sender: Any) {
+        let alertView = UIAlertController(title: "Reset", message: "Are you sure you want to reset the game?", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Yes!", style: .default, handler: { action in
+            self.questionArray = self.askedQuestions
+            self.score = 0
+            self.askedQuestions = []
+            self.generateQuestionText()
+        })
+        let noAction = UIAlertAction(title: "No!", style: .default, handler: {action in self.dismiss(animated:true, completion: nil)
+            
+        })
+        alertView.addAction(okAction)
+        alertView.addAction(noAction)
+        self.present(alertView, animated: true, completion: nil)
     }
     
     @IBAction func answerButtonTapped(_ sender: Any) {

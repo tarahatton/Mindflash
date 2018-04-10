@@ -19,6 +19,7 @@ class CreateQuestionViewController: UIViewController {
     @IBOutlet weak var answer4TextField: UITextField!
     @IBOutlet weak var correctAnswerController: UISegmentedControl!
     
+    var newQuestion: Question!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,11 +32,20 @@ class CreateQuestionViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func cancelButtonTapped(_ sender: Any) { self.dismiss(animated: true)
+    @IBAction func cancelButtonTapped(_ sender: Any)
+    { self.dismiss(animated: true)
+
     }
     
     @IBAction func addButtonTapped(_ sender: Any) {
+        var newQuestion = Question(questionText: cancelTextField.text!, answers: [answer1TextField.text!, answer2TextField.text!, answer3TextField.text!, answer4TextField.text!], correctAnswer: correctAnswerController.selectedSegmentIndex)
     }
     
+    override func prepare(for segue: UIStoryboardSegue,sender: Any?) {
+        if (segue.identifier == "guessScreen") {
+            let vc = segue.destination as! ViewController
+            vc.questionArray.append(newQuestion)
+        }
+    }
 
 }
